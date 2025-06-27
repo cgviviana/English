@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ways to Say Hello</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('1.png') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      padding: 2em;
+      text-align: center;
+    }
+
+    h1 {
+      color: #444;
+      margin-bottom: 2em;
+      text-shadow: 1px 1px 2px gold;
+    }
+
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6em;
+      max-width: 1200px;
+      margin: 0 auto 3em;
+    }
+
+    .card {
+      width: 150px;
+      height: 210px;
+      perspective: 1000px;
+    }
+
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      background: white;
+      border: 2px solid goldenrod;
+      border-radius: 14px;
+      padding: 0.8em;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .card-face.back {
+      transform: rotateY(180deg);
+      font-size: 0.85em;
+    }
+
+    .emoji {
+      font-size: 2em;
+      margin-bottom: 0.5em;
+    }
+
+    .greeting {
+      font-size: 0.95em;
+      font-weight: bold;
+      margin-bottom: 0.5em;
+    }
+
+    .explanation span {
+      cursor: pointer;
+      color: #0077cc;
+      text-decoration: underline dotted;
+    }
+
+    .translation {
+      font-size: 0.75em;
+      color: #555;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .buttons {
+      margin-top: 1em;
+      display: flex;
+      gap: 0.5em;
+    }
+
+    .btn {
+      background-color: #ffd700;
+      border: none;
+      padding: 0.4em 0.6em;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ways to Say Hello</h1>
+
+  <div class="grid" id="question-row"></div>
+  <div class="grid" id="answer-row"></div>
+
+  <script>
+    const dictionary = {
+      'Polite': 'Cortés', 'positive': 'positiva', 'situations': 'situaciones', 'often': 'a menudo',
+      'and': 'y', 'formal': 'formal', 'response': 'respuesta', 'showing': 'mostrando', 'gratitude': 'gratitud',
+      'Casual': 'Informal', 'okay': 'bien', 'average': 'normal',
+      'used': 'usado', 'in': 'en',
+      'things': 'cosas', 'are': 'están',
+      'respectful': 'respetuoso', 'greeting': 'saludo', 'between': 'entre', 'strangers': 'desconocidos',
+      'friendly': 'amistoso', 'informal': 'informal', 'expression': 'expresión', 'of': 'de', 'care': 'cuidado',
+      'check-in': 'consulta', 'expression.': 'expresión.', 'close': 'cercano', 'friends': 'amigos'
+    };
+
+    const greetings = [
+      { id: 'card1', emoji: '🙋‍♂️', text: 'How are you?', explanation: 'Polite response often used in formal situations.' },
+      { id: 'card2', emoji: '🙂', text: 'How are you doing?', explanation: 'Friendly greeting between acquaintances.' },
+      { id: 'card3', emoji: '👋', text: 'How is it going?', explanation: 'Informal check-in or expression of care.' },
+      { id: 'card4', emoji: '🤔', text: 'How are things going?', explanation: 'Used to ask generally about someone’s situation.' },
+      { id: 'card5', emoji: '🫡', text: "What's up?", explanation: 'Casual greeting between close friends.' }
+    ];
+
+    const answers = [
+      { id: 'card6', emoji: '✅', text: "I'm fine, thank you.", explanation: 'Polite and formal response showing gratitude.' },
+      { id: 'card7', emoji: '👍', text: 'Not bad!', explanation: 'Casual response showing things are okay or average.' },
+      { id: 'card8', emoji: '😌', text: 'Very well, thank you.', explanation: 'Polite and positive response often used in formal situations.' }
+    ];
+
+    function createCard(card) {
+      const words = card.explanation.split(' ').map(word => {
+        const clean = word.replace(/[^\w]/g, '');
+        return `<span onclick="showTranslation(this,'${clean}')">${word}</span>`;
+      }).join(' ');
+
+      return `
+        <div class="card" id="${card.id}">
+          <div class="card-inner">
+            <div class="card-face front">
+              <div class="emoji">${card.emoji}</div>
+              <div class="greeting">${card.text}</div>
+              <div class="buttons">
+                <button class="btn" onclick="speak('${card.text}')">🔊</button>
+                <button class="btn" onclick="flipCard('${card.id}')">🔄</button>
+              </div>
+            </div>
+            <div class="card-face back">
+              <div class="explanation">${words}<div class="translation"></div></div>
+              <button class="btn" onclick="flipCard('${card.id}')">⬅️</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    document.getElementById('question-row').innerHTML = greetings.map(createCard).join('');
+    document.getElementById('answer-row').innerHTML = answers.map(createCard).join('');
+
+    function flipCard(id) {
+      document.getElementById(id).classList.toggle('flipped');
+    }
+
+    function showTranslation(span, word) {
+      const t = dictionary[word];
+      const container = span.parentElement.querySelector('.translation');
+      container.textContent = `${word} = ${t || 'traducción no disponible'}`;
+      container.style.display = 'block';
+    }
+
+    let availableVoices = [];
+
+    speechSynthesis.onvoiceschanged = () => {
+      availableVoices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+    };
+
+    function speak(text) {
+      if (!availableVoices.length) {
+        availableVoices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+      }
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voice = availableVoices.find(v => v.name.toLowerCase().includes('male')) || availableVoices[0];
+      if (voice) utterance.voice = voice;
+      utterance.rate = 0.95;
+      speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>
